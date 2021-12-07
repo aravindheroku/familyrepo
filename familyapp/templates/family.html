@@ -1,0 +1,56 @@
+<html>
+    <head>   
+    <style>
+        table {
+            font-size: 18px;
+        }
+        
+        .next {
+        text-decoration: none;
+        display: inline-block;
+        padding: 8px 16px;
+        }
+
+        a:hover {
+        background-color: #ddd;
+        color: black;
+        }
+    </style>
+    <script type="text/javascript">
+        
+        function setParentId(btnId) {
+            console.log(btnId)
+            document.getElementById('parent').value = btnId;
+        }
+    </script>
+    </head>
+    <body>
+<h1 style="text-align: center;margin-top: 50px;">My Family</h1>        
+    <form method="POST" action="/viewGeneration/">
+        {% csrf_token %}
+        <input type="hidden" name = "parent" id="parent">
+        <table id = "familyTbl" style="margin: 150px auto;" border="1" cellpadding = "10" cellspacing = "10">
+            
+            <tr>
+                {% if initial %}
+                    <td style="border: 0;"> അച്ഛൻ </td>
+                    <td colspan="2" style="border: 0;"> അമ്മ </td>
+                {% else %}
+                    <td style="border: 0;"> മക്കൾ </td>
+                    <td colspan="2" style="border: 0;"> മരുമക്കൾ </td>
+                {% endif %}
+            </tr>
+            {% for obj in familyDict %}
+                <tr>
+                    <td> {{obj.child}} </td>
+                    <td> {{obj.inlaw}} </td>
+                    <td> <button type="submit" class = "next" id = "{{obj.id}}" onclick="return setParentId(this.id)"> ഇവിടെ തൊടുക &raquo; </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </form>
+</body>
+
+</html>
+
+
