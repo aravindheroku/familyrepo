@@ -14,7 +14,7 @@ def viewFamily(request):
         parent = request.POST['parent']
         
         generations = Childrens.objects.filter(fkParent__id = parent)
-
+        # print(generations)
         for obj in generations:
             
             if obj.gender == 'M':
@@ -24,7 +24,11 @@ def viewFamily(request):
                     "child"   : parentObj.father.name,
                     "inlaw"   : parentObj.mother.name       
                 }
-            
+                
+                childExist = Childrens.objects.filter(fkParent = parentObj).exists()
+                if childExist == False:
+                    familyObj['completed'] = True
+
             else:
                 parentObj = Parent.objects.get(mother = obj.fkChild.id)
 
@@ -33,6 +37,11 @@ def viewFamily(request):
                     "child"   : parentObj.mother.name,
                     "inlaw"   : parentObj.father.name       
                 }
+                
+                childExist = Childrens.objects.filter(fkParent = parentObj).exists()
+                
+                if childExist == False:
+                    familyObj['completed'] = True
 
             family.append(familyObj)
 

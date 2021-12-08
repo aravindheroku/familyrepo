@@ -1,8 +1,13 @@
 <html>
     <head>   
     <style>
+        body {
+            background-color: #29122c;
+        }
         table {
-            font-size: 18px;
+            width: 100%;
+            border: 0;
+            
         }
         
         .next {
@@ -15,6 +20,21 @@
         background-color: #ddd;
         color: black;
         }
+        td {
+            text-align: center;
+            font-size: 24px;
+            color: whitesmoke;
+        }
+        .row {
+            background-color: rgb(160, 20, 62);
+            margin-top: 20px;
+        }
+        button {
+            background: transparent;
+            font-size: 20px;
+            border: 0;
+            color: wheat;
+        }
     </style>
     <script type="text/javascript">
         
@@ -25,26 +45,32 @@
     </script>
     </head>
     <body>
-<h1 style="text-align: center;margin-top: 50px;">My Family</h1>        
+<h1 style="text-align: center;margin-top: 50px; color: white;">വാസുതോടി കാർണോരും മക്കളും</h1>        
     <form method="POST" action="/viewGeneration/">
         {% csrf_token %}
         <input type="hidden" name = "parent" id="parent">
         <table id = "familyTbl" style="margin: 150px auto;" border="1" cellpadding = "10" cellspacing = "10">
             
-            <tr>
+            <tr class="topRow">
                 {% if initial %}
-                    <td style="border: 0;"> അച്ഛൻ </td>
-                    <td colspan="2" style="border: 0;"> അമ്മ </td>
+                    <td style="border: 0;" class="head"> മുത്തച്ഛൻ </td>
+                    <td  style="border: 0;" class="head"> മുത്തശ്ശി </td>
+                    <td  style="border: 0;">  </td>
                 {% else %}
-                    <td style="border: 0;"> മക്കൾ </td>
-                    <td colspan="2" style="border: 0;"> മരുമക്കൾ </td>
+                    <td style="border: 0;" class="head"> മക്കൾ </td>
+                    <td  style="border: 0;" class="head"> മരുമക്കൾ </td>
+                    <td  style="border: 0;">  </td>
                 {% endif %}
             </tr>
             {% for obj in familyDict %}
-                <tr>
+                <tr class="row">
                     <td> {{obj.child}} </td>
                     <td> {{obj.inlaw}} </td>
-                    <td> <button type="submit" class = "next" id = "{{obj.id}}" onclick="return setParentId(this.id)"> ഇവിടെ തൊടുക &raquo; </td>
+                    {% if obj.completed %}
+                        <td style="border: 0;background-color:brown"> <button type="button" class = "next" >അവസാനിച്ചു </td>
+                    {% else %}
+                        <td style="border: 0;background-color: rgb(62, 90, 59);"> <button type="submit" class = "next" id = "{{obj.id}}" onclick="return setParentId(this.id)"> താഴ്വഴികൾ &raquo; </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </table>
