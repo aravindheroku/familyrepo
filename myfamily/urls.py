@@ -20,5 +20,8 @@ from familyapp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.viewFamily),
-    path('viewGeneration/',views.viewFamily)
+    path('viewGeneration/',views.viewFamily),
+    path('addgen/',views.addMembers),
+    path('getparents/',views.getParents),
+    path('getspouse/',views.getSpouse)
 ]

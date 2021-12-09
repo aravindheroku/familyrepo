@@ -7,6 +7,7 @@
         table {
             width: 100%;
             border: 0;
+            margin-top: 120px;
             
         }
         
@@ -22,16 +23,16 @@
         }
         td {
             text-align: center;
-            font-size: 24px;
+            font-size: 28px;
             color: whitesmoke;
         }
         .row {
             background-color: rgb(160, 20, 62);
-            margin-top: 20px;
+            
         }
         button {
             background: transparent;
-            font-size: 20px;
+            font-size: 26px;
             border: 0;
             color: wheat;
         }
@@ -45,11 +46,11 @@
     </script>
     </head>
     <body>
-<h1 style="text-align: center;margin-top: 50px; color: white;">വാസുതോടി കാർണോരും മക്കളും</h1>        
+<h1 style="text-align: center;margin-top: 100px; color: white; font-size: 34px;">വസുതൊടി കാർണോരും മക്കളും</h1>        
     <form method="POST" action="/viewGeneration/">
         {% csrf_token %}
         <input type="hidden" name = "parent" id="parent">
-        <table id = "familyTbl" style="margin: 150px auto;" border="1" cellpadding = "10" cellspacing = "10">
+        <table id = "familyTbl"  border="1" cellpadding = "10" cellspacing = "10">
             
             <tr class="topRow">
                 {% if initial %}
@@ -64,8 +65,18 @@
             </tr>
             {% for obj in familyDict %}
                 <tr class="row">
-                    <td> {{obj.child}} </td>
-                    <td> {{obj.inlaw}} </td>
+                    <td> {{obj.child}} <br> <span  style="font-size: 18px;color: white;"> ( {{obj.caddress}} )</span> </td>
+                    
+                    {% if 'inlaw' in obj %}
+                        
+                        <td> {{obj.inlaw}} <br> <span  style="font-size: 18px;color: white;"> ( {{obj.inaddress}} )</span>  </td>
+                    
+                    {% else %}
+                    
+                    <td> ഇല്ല <br> <span  style="font-size: 18px;color: white;"> </td>
+                    
+                    {% endif %}
+                    
                     {% if obj.completed %}
                         <td style="border: 0;background-color:brown"> <button type="button" class = "next" >അവസാനിച്ചു </td>
                     {% else %}

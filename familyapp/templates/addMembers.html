@@ -1,0 +1,282 @@
+<html>
+    <head>   
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <style>
+        body {
+            background-color: #29122c;
+        }
+        table {
+            width: 100%;
+            border: 0;
+            margin-top: 120px;
+            
+        }
+        td {
+            color: white;
+            border: 0;
+            font-size: 24px;
+        }
+        input {
+            background: transparent;
+            width: 100%;
+            color: white;
+            height: 40px;
+            border: 1px solid whitesmoke;
+        }
+        .plist {
+            border-bottom: 1px solid white;
+            margin-top: 18px;
+        }
+    </style>
+    <script type="text/javascript">
+        
+        function onGenderSelected(gender) {
+            
+            if (gender == "F") {
+                
+                document.getElementById('SN').hidden = true;
+                document.getElementById('SW').hidden = true;
+
+                document.getElementById('DR').hidden = false;
+                document.getElementById('DW').hidden = false;
+            }
+            else {
+                document.getElementById('DR').hidden = true;
+                document.getElementById('DW').hidden = true;
+
+                document.getElementById('SN').hidden = false;
+                document.getElementById('SW').hidden = false;
+            }
+            
+           
+        }
+       function getParent() {
+           $('#pDiv').html('');
+           console.log($('#parent').val())
+            $.ajax({
+                   url:'/getparents' ,
+                   type:'GET',
+                   data: {
+                       skey:$('#parent').val(),
+                   },
+                   success:function (res) {
+                     
+                    if (res.response.length > 0) {
+                       
+                        $('#pDiv').attr('hidden',false);
+                        
+                        res.response.forEach(obj => {
+                            $('#pDiv').append(
+                            '<div class = "plist" id = '+ obj.id+'>'+obj.pname +'</div>'
+                            );
+                        });
+                    } 
+                    $(document).on('click','.plist',(e)=> {
+                        element = e.currentTarget;
+                        
+                        $('#parent').val(element.innerText);
+                        $('#pDiv').attr('hidden',true);
+                        $('#pID').val(element.id);
+                        
+                    });
+
+                   },
+                   error:function(e) {
+                       console.log(e)
+                   }
+            });    
+       }
+      $(document).ready(()=> {
+        $('#relation').change(()=> {
+                relation = $('#relation').val();
+                if (relation == 'sw') {
+                    $('#wf').attr('hidden',false);
+                    $('#hus').attr('hidden',true);
+                }
+
+                else if (relation == 'dw') {
+                    $('#wf').attr('hidden',true);
+                    $('#hus').attr('hidden',false);
+                }
+                else {
+                    $('#wf').attr('hidden',true);
+                    $('#hus').attr('hidden',true);
+                    $('#sp').attr('hidden',true);
+                }
+                if (relation == 'sw' || relation == 'dw') {
+                $('#sp').attr('hidden',false);
+
+                if ($('#pID').val() == '') {
+                    alert('രക്ഷിതാവ്?');
+                    return false;
+                }
+                $.ajax ({
+                    url: '/getspouse',
+                    type : 'GET',
+                    data: {
+                        pid:$('#pID').val(),
+                        relation:relation
+                    },
+                    success:function (res) {
+                       res.response.forEach(obj => {
+                        $('#spouse').append(
+                            '<option class = "opts" value = '+ obj.id + '>' + obj.name + '</option>'
+                        );
+                       });
+                    },
+                    error:function(e){
+                        console.log(e);
+                    }
+                })
+            }
+            });   
+
+            $('#btn').click(()=> {
+               console.log($('#spouse').val());
+               console.log('brn click')
+                if ($('#name').val() == '') {
+                    alert('പേര്?');
+                    return false;
+                }
+                else if ($('#address').val() == ''){
+                    alert('വിലാസം?');
+                    return false;
+                }
+               
+                else if ($('.gender:checked').length == 0){
+                    alert('ലിംഗഭേദം?');
+                    return false;
+                }
+                else if ($('#pID').val() == ''){
+                    alert('രക്ഷിതാവ്?');
+                    return false;
+                }
+                else if ($('#relation').val() == 0){
+                    alert('രക്ഷിതാവുമായുള്ള ബന്ധം?');
+                    return false;
+                }
+              
+                else {
+                    if ($('#relation').val() == 'sw'){
+                        if ($('#spouse').val() == 0) {
+                            alert('ഭാര്യ?');
+                            return false;
+                        }
+                    }
+                    if ($('#relation').val() == 'dw'){
+                        if ($('#spouse').val() == 0) {
+                            alert('ഭർത്താവ്?');
+                            return false;
+                        }
+                    }
+                   
+                    $.ajax({
+                        url:'/addgen/',
+                        type:'POST',
+                        data:{
+                            mname    : $('#name').val(),
+                            maddress : $('#address').val(),
+                            mgender   : $('.gender:checked').val(),
+                            mparent   : $('#pID').val(),
+                            mrelation : $('#relation').val(),
+                            mspouse   : $('#spouse').val()
+                        },
+                        success:function(res) {
+                            console.log(res);
+                            alert(res.message);
+                            $('#name').val('');
+                            $('#address').val('');
+                            $('.gender:checked').prop('checked',false);
+                            $('#pID').val('');
+                            $('#parent').val('');
+                            $('#relation').val(0);
+                            $('#spouse').val(0)
+                            $('.opts').remove();
+                        },
+
+                        error:function(e) {
+                            console.log(e);
+                        }
+                    })
+                }
+            });
+      });
+    </script>
+    </head>
+    <body>
+<h1 style="text-align: center;margin-top: 100px; color: white; font-size: 34px;">വസുതൊടി കാർണോരും മക്കളും</h1>        
+    <form >
+        {% csrf_token %}
+        
+        <table id = "familyTbl"  border="1" cellpadding = "10" cellspacing = "10">
+           <tr>
+               <td > പേര്  </td>
+           </tr>
+           <tr>
+            <td > <input type="text"  id = "name"> </td>
+        </tr>
+
+        <tr>
+            <td > വിലാസം </td>
+        </tr>
+        <tr>
+         <td > <input type="text"  id = "address"> </td>
+        </tr>
+
+        <tr>
+            <td > ലിംഗഭേദം  </td>
+        </tr>
+        <tr>
+         <td > <input type="radio" class = "gender" name = "sex" value = "M"  style="height: 15px;width: 10%;" onchange="onGenderSelected(this.value)">  <label> പുരുഷൻ </label>
+                <input type="radio" class = "gender" name = "sex" value = "F"  style="height: 15px;width: 10%;" onchange="onGenderSelected(this.value)">  <label> സ്ത്രീ  </label>
+        </td>
+     </tr>
+     <tr>
+        <td > രക്ഷിതാവ്  </td>
+    </tr>
+    <tr>
+     <td > <input type="text"  id="parent" onchange="getParent()"> <br>
+        <div id = "pDiv" hidden style="padding: 5px;">
+           
+        </div>
+        <input type="hidden" id = "pID" name = 'pID'>
+    </td>
+ </tr>
+
+    <td > രക്ഷിതാവുമായുള്ള ബന്ധം </td>
+</tr>
+<tr>
+ <td > 
+    <select name="relation" style="width: 100%;height: 40px;" id="relation">
+        <option value="0" selected> Select </option>
+        <option value="sn" id = "SN"> മകൻ </option>
+        <option value="dr" id = "DR"> മകൾ </option>
+        <option value="sw" id = "SW"> മരുമകൻ </option>
+        <option value="dw" id = "DW"> മരുമകൾ </option>
+    </select>
+</td>
+</tr>
+<tr>
+    <td hidden id="hus" hidden> ഭർത്താവ് </td>
+    <td hidden id="wf" hidden> ഭാര്യ </td>
+</tr>
+<tr>
+ <td id = 'sp' hidden> 
+     <select id="spouse" name="spouse" style="width: 100%;height: 40px;">
+         <option value = 0>  Select </option>
+     </select> 
+
+</td>
+</tr>
+
+<tr>
+ <td > <button type = "button" id = "btn" style="background: rgb(77, 145, 60);width: 100%;height: 40px;color: wheat; font-size: 20px;"> Submit </button> </td>
+</tr>
+</table>
+</form>
+</body>
+
+</html>
+
+
