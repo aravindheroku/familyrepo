@@ -16,6 +16,8 @@ def addMembers(request):
 
             parent = Parent.objects.get(id = reqObj['mparent'])
             
+            if reqObj['maddress'] == '':
+                reqObj['maddress'] = 'N'
             memObj = Members(name = reqObj['mname'],address = reqObj['maddress'],gender = reqObj['mgender'])
             memObj.save()
             
@@ -60,7 +62,6 @@ def viewFamily(request):
                     familyObj = {
                         "id"      : parentObj.id,
                         "child"   : parentObj.father.name,
-                        "caddress"  : parentObj.father.address,
                         "inlaw"   : parentObj.mother.name,       
                         "inaddress" : parentObj.mother.address, 
                     }
@@ -75,7 +76,6 @@ def viewFamily(request):
                     familyObj = {
                         "id"        : parentObj.id,
                         "child"     : parentObj.mother.name,
-                        "caddress"  : parentObj.mother.address,
                         "inlaw"     : parentObj.father.name,
                         "inaddress" : parentObj.father.address,         
                     }
@@ -89,7 +89,6 @@ def viewFamily(request):
                 familyObj = {
                     "id"        : obj.id,
                     "child"     : obj.fkChild.name,
-                    "caddress"  : obj.fkChild.address,
                     'completed' : True
                 }
             family.append(familyObj)
@@ -103,7 +102,6 @@ def viewFamily(request):
         familyObj = {
             "id"        : parentObj.id,
             "child"     : parentObj.father.name,
-            "caddress"  : parentObj.father.address,
             "inlaw"     : parentObj.mother.name,     
             "inaddress" : parentObj.mother.address,  
             }

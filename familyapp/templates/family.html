@@ -46,7 +46,7 @@
     </script>
     </head>
     <body>
-<h1 style="text-align: center;margin-top: 100px; color: white; font-size: 34px;">വസുതൊടി കാർണോരും മക്കളും</h1>        
+<h1 style="text-align: center;margin-top: 100px; color: white; font-size: 34px;">വാസുതൊടി കാർണോരും മക്കളും</h1>        
     <form method="POST" action="/viewGeneration/">
         {% csrf_token %}
         <input type="hidden" name = "parent" id="parent">
@@ -65,7 +65,7 @@
             </tr>
             {% for obj in familyDict %}
                 <tr class="row">
-                    <td> {{obj.child}} <br> <span  style="font-size: 18px;color: white;"> ( {{obj.caddress}} )</span> </td>
+                    <td> {{obj.child}}  </td>
                     
                     {% if 'inlaw' in obj %}
                         
@@ -80,7 +80,7 @@
                     {% if obj.completed %}
                         <td style="border: 0;background-color:brown"> <button type="button" class = "next" >അവസാനിച്ചു </td>
                     {% else %}
-                        <td style="border: 0;background-color: rgb(62, 90, 59);"> <button type="submit" class = "next" id = "{{obj.id}}" onclick="return setParentId(this.id)"> താഴ്വഴികൾ &raquo; </td>
+                        <td style="border: 0;background-color: rgb(62, 90, 59);"> <button type="submit" class = "next" id = "{{obj.id}}" onclick="return setParentId(this.id)"> ഇവിടെ തൊടുക &raquo; </td>
                     {% endif %}
                 </tr>
             {% endfor %}
