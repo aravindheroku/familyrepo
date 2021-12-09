@@ -11,14 +11,16 @@ from django.views.decorators.csrf import csrf_exempt
 def addMembers(request):
     if request.method == 'POST':
         reqObj = request.POST
-        
+        print(reqObj)
         try:
 
             parent = Parent.objects.get(id = reqObj['mparent'])
             
             if reqObj['maddress'] == '':
-                reqObj['maddress'] = 'N'
-            memObj = Members(name = reqObj['mname'],address = reqObj['maddress'],gender = reqObj['mgender'])
+                address = 'N'
+            else:
+                address = reqObj['maddress']
+            memObj = Members(name = reqObj['mname'],address = address,gender = reqObj['mgender'])
             memObj.save()
             
             if reqObj['mrelation'] == 'sw' or reqObj['mrelation'] == 'dw':
