@@ -1,3 +1,4 @@
+from json import dump, loads
 from django.shortcuts import render
 from django.http import JsonResponse
 
@@ -6,38 +7,88 @@ from django.http import JsonResponse
 from . models import *
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
+import json
+
+def readJsonFile():
+    jsFile = open("familyapp/mydb.json","r")
+    jsData = jsFile.read()
+     
+    obj = json.loads(jsData)
+
+    return obj
+
+def writeJsonFile(obj):
+    with open("familyapp/mydb.json","w") as write:
+        json.dump(obj,write)
 
 @csrf_exempt
 def addMembers(request):
     if request.method == 'POST':
+        
         reqObj = request.POST
-        print(reqObj)
+        
+        
         try:
-
-            parent = Parent.objects.get(id = reqObj['mparent'])
+            obj = readJsonFile()
+      
+            mlist = obj['Members']
+            plist = obj['Parents']
+            clist = obj['Childrens']
             
-            if reqObj['maddress'] == '':
-                address = 'N'
+            mlastId = mlist[-1]['id']
+            plastId = plist[-1]['id']
+            
+            if len(clist) == 0:
+                clastId = 0
+            
             else:
-                address = reqObj['maddress']
-            memObj = Members(name = reqObj['mname'],address = address,gender = reqObj['mgender'])
-            memObj.save()
+                clastId = clist[-1]['id']
             
-            if reqObj['mrelation'] == 'sw' or reqObj['mrelation'] == 'dw':
-                child = Members.objects.get(id = reqObj['mspouse'])
-                if child.gender == 'F':
-                    parentObj = Parent(father = memObj,mother = child)
+            mlist.append({'id':mlastId + 1,'name':reqObj['mname'],'address':reqObj['maddress'],'gender':reqObj['mgender']})
+            obj['Members'] = mlist
+            
+            isParent = False
+
+            if reqObj['mrelation'] == 'sw':
+                isParent = False
                 
-                else:
-                    parentObj = Parent(father = child,mother = memObj)
-                parentObj.save()
-            
-            else:
+                plist.append({'id':plastId + 1,'father':mlastId + 1,'mother':int(reqObj['mspouse'])})
+                obj['Parents'] = plist
 
-                childObj = Childrens(fkParent = parent,fkChild = memObj)
-                childObj.save()
+                
+
+            elif reqObj['mrelation'] == 'dw':
+                isParent = False
+                
+                plist.append({'id':plastId + 1,'father':int(reqObj['mspouse']),'mother': mlastId + 1})
+                obj['Parents'] = plist
+
+                
+ 
+            else:
+                clist.append({'id':clastId + 1,'fkParent':int(reqObj['mparent']),'fkChild':mlastId + 1})
+                obj['Childrens'] = clist
+
+                
+            writeJsonFile(obj)
+            
+            mobj = Members(id = mlastId + 1,name = reqObj['mname'],address = reqObj['maddress'],gender = reqObj['mgender'])
+            mobj.save()
+            
+            if isParent:
+                
+                spouse = Members.objects.get(id = reqObj['spouse'])
+                
+                pobj = Parent(id = plastId + 1, father = spouse,mother = mobj)
+                pobj.save()
+
+            pobj = Parent.objects.get(id = reqObj['mparent'])
+            
+            cobj = Childrens(id = clastId + 1, fkParent = pobj,fkChild = mobj)
+            cobj.save()
             
             return JsonResponse({'message': 'Member Saved...'})
+        
         except Exception as e:
             print(e)
             return JsonResponse({'message':str(e)})
@@ -45,6 +96,49 @@ def addMembers(request):
     else:
         return render(request,'addMembers.html')
 
+
+def clearModels():
+    childrens = Childrens.objects.all()
+    parents   = Parent.objects.all()
+    members   = Members.objects.all()
+    for obj in childrens:
+        obj.delete()
+    
+    for obj in parents:
+        obj.delete()
+    
+    for obj in members:
+        obj.delete()
+    
+def createFamily():
+    family = readJsonFile()
+
+    members   = family['Members']
+    parents   = family['Parents']
+    childrens = family['Childrens']
+
+    for obj in members:
+        mobj = Members(id = obj['id'],name = obj['name'],address = obj['address'],gender = obj['gender'])
+        mobj.save()
+
+    for obj in parents:
+        print(obj)
+        fobj = Members.objects.get(id = obj['father'])
+
+        print(fobj)
+        mobj = Members.objects.get(id = obj['mother'])
+       
+        pobj = Parent(id = obj['id'],father = fobj,mother = mobj)
+        pobj.save()
+    
+    if len(childrens) != 0:
+        for obj in childrens:
+            print(obj)
+            pobj = Parent.objects.get(id = obj['fkParent'])
+            mobj = Members.objects.get(id = obj['fkChild'])
+
+            cobj = Childrens(id = obj['id'],fkParent = pobj,fkChild = mobj)
+            cobj.save()
 
 def viewFamily(request):
     family = []
@@ -98,9 +192,11 @@ def viewFamily(request):
         return render(request,'family.html',{"initial" : False,"familyDict":family})
     
     else:
+        clearModels()
+        createFamily()
+       
         parentObj = Parent.objects.order_by('id').first()
-    
-    
+         
         familyObj = {
             "id"        : parentObj.id,
             "child"     : parentObj.father.name,
