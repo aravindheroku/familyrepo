@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 
 def readJsonFile():
-    jsFile = open("familyapp/mydb.json","r")
+    jsFile = open("./familyapp/static/mydb.json","r")
     jsData = jsFile.read()
      
     obj = json.loads(jsData)
@@ -18,7 +18,7 @@ def readJsonFile():
     return obj
 
 def writeJsonFile(obj):
-    with open("familyapp/mydb.json","w") as write:
+    with open("./familyapp/static/mydb.json","w") as write:
         json.dump(obj,write)
 
 @csrf_exempt
