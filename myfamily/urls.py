@@ -23,5 +23,7 @@ urlpatterns = [
     path('viewGeneration/',views.viewFamily),
     path('addgen/',views.addMembers),
     path('getparents/',views.getParents),
-    path('getspouse/',views.getSpouse)
+    path('getspouse/',views.getSpouse),
+    path('edit/',views.editMember),
+    path('getmembers/',views.getMembers)
 ]
